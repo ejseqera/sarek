@@ -106,7 +106,7 @@ workflow SAREK {
         gc_file
         germline_resource
         germline_resource_tbi
-        index_alignment
+        index_alignement
         intervals_and_num_intervals
         intervals_bed_combined
         intervals_bed_combined_for_variant_calling
@@ -188,7 +188,7 @@ workflow SAREK {
                 input_fastq,
                 fasta,
                 fasta_fai,
-                index_alignment,
+                index_alignement,
                 params.group_by_umi_strategy)
 
             bam_converted_from_fastq = FASTQ_CREATE_UMI_CONSENSUS_FGBIO.out.consensusbam.map{ meta, bam -> [ meta, bam, [] ] }
@@ -255,7 +255,7 @@ workflow SAREK {
 
         // reads will be sorted
         sort_bam = true
-        FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_SENTIEON(reads_for_alignment, index_alignment, sort_bam, fasta, fasta_fai)
+        FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_SENTIEON(reads_for_alignment, index_alignement, sort_bam, fasta, fasta_fai)
 
         // Grouping the bams from the same samples not to stall the workflow
         // Use groupKey to make sure that the correct group can advance as soon as it is complete
@@ -861,7 +861,8 @@ workflow SAREK {
     version_yaml = Channel.empty()
     if (!(params.skip_tools && params.skip_tools.split(',').contains('versions'))) {
         version_yaml = softwareVersionsToYAML(versions)
-            .collectFile(storeDir: "${params.outdir}/pipeline_info", name: 'nf_core_sarek_software_mqc_versions.yml', sort: true, newLine: true)
+            // .collectFile(storeDir: "${params.outdir}/pipeline_info", name: 'nf_core_sarek_software_mqc_versions.yml', sort: true, newLine: true)
+                .collectFile(storeDir: file("${params.outdir}").resolve("pipeline_info"), name: 'nf_core_sarek_software_mqc_versions.yml', sort: true, newLine: true)
     }
 
     //
@@ -879,7 +880,7 @@ workflow SAREK {
         ch_multiqc_files                      = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
         ch_multiqc_files                      = ch_multiqc_files.mix(version_yaml)
         ch_multiqc_files                      = ch_multiqc_files.mix(reports)
-        ch_multiqc_files                      = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: true))
+        ch_multiqc_files                      = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml', sort: truet ))
 
         MULTIQC (
             ch_multiqc_files.collect(),
